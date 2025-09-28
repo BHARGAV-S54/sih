@@ -1,0 +1,28 @@
+name: Run Argo Converter
+
+on:
+  workflow_dispatch:   # allows manual trigger
+  schedule:
+    - cron: "0 0 * * *"   # runs daily at midnight UTC
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          # or directly: pip install xarray pandas numpy requests pyarrow netCDF4
+
+      - name: Run converter
+        run: |
+          python argo_converter.py
