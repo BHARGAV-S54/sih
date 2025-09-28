@@ -1,0 +1,6 @@
+xarray
+pandas
+numpy
+requests
+pyarrow
+netCDF4
