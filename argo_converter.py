@@ -122,6 +122,7 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
         meas_df = ds[meas_vars].to_dataframe().reset_index() if meas_vars else pd.DataFrame()
         cycle_df = ds[cycle_vars].to_dataframe().reset_index() if cycle_vars else pd.DataFrame()
 
+        # Guard against missing CYCLE_NUMBER
         if (not meas_df.empty and not cycle_df.empty 
             and "CYCLE_NUMBER" in meas_df.columns 
             and "CYCLE_NUMBER" in cycle_df.columns):
@@ -133,6 +134,7 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
 
         df = sanitize_columns(df)
 
+        # Handle JULD columns flexibly
         juld_cols = [c for c in df.columns if c.startswith("JULD")]
         for c in juld_cols:
             try:
@@ -150,6 +152,7 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
                 if col in df.columns:
                     df[col] = df.groupby("CYCLE_NUMBER")[col].transform(lambda s: s.ffill().bfill())
 
+        # Representative time
         rep = None
         for c in ["JULD_ASCENT_END", "JULD_TRANSMISSION_START", "JULD"]:
             if c in juld_cols:
@@ -163,6 +166,8 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
         return df
     finally:
         ds.close()
+
+
 def convert_prof(nc_path: str) -> pd.DataFrame:
     ds = safe_open_dataset(nc_path)
     try:
@@ -177,6 +182,7 @@ def convert_prof(nc_path: str) -> pd.DataFrame:
 
         df = sanitize_columns(df)
 
+        # Handle JULD flexibly
         if "JULD" in df.columns:
             if np.issubdtype(df["JULD"].dtype, np.datetime64):
                 df["JULD_dt"] = df["JULD"]
@@ -195,6 +201,7 @@ def convert_prof(nc_path: str) -> pd.DataFrame:
         return df
     finally:
         ds.close()
+
 # -----------------------
 # Batch runner
 # -----------------------
