@@ -13,7 +13,7 @@ import xarray as xr
 # -----------------------
 # Configuration
 # -----------------------
-BASE_URL = "https://data-argo.ifremer.fr"
+BASE_URL = "BASE_URL = "https://data-argo.ifremer.fr/dac"
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")
 DOWNLOAD_DIR = "./argo_downloads"
