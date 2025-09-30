@@ -280,9 +280,9 @@ for _, row in prof_files_sorted.tail(3).iterrows():
         url = row["url"]
 fname = row["filename"]
 local_nc = os.path.join(DOWNLOAD_DIR, fname)
-        print(f"Downloading prof: {url}")
-        stream_download(url, local_nc)
-        print(f"Converting prof: {local_nc}")
+print(f"Downloading prof: {url}")
+stream_download(url, local_nc)
+print(f"Converting prof: {local_nc}")
  try:
            df = convert_prof(local_nc)
           base = os.path.splitext(fname)[0]
