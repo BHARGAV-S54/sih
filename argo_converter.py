@@ -274,7 +274,11 @@ except Exception as e:
             print(f"Failed convert traj {fname}: {e}")
  # Download and convert profile files (you can limit to latest N for demo)
     # For demo, keep last 3 profile files
-print(f"⏭️ Skipping prof file: {fname}")
+local_nc = stream_download(url, local_nc)
+if not local_nc:
+    print(f"⏭️ Skipping prof file: {fname}")
+    continue
+
      for _, row in prof_files_sorted.tail(3).iterrows():
         url = row["url"]
   fname = row["filename"]
