@@ -266,6 +266,7 @@ def main(platform_ids: T.List[str]):
 # -----------------------
 # Flask wrapper for Render free tier
 # -----------------------
+"""
 from flask import Flask
 import threading
 
@@ -280,7 +281,8 @@ def run_converter():
         # Run your ETL job once at startup
         main(platform_ids=["13858"])
     except Exception as e:
-        print(f"ETL failed: {e}")
+        print(f"ETL failed: {e}") 
+   """     
 
 if __name__ == "__main__":
     # Start ETL in a background thread
