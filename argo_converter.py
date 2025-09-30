@@ -16,7 +16,8 @@ BASE_URL = "https://data-argo.ifremer.fr/"
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")
 DOWNLOAD_DIR = "./argo_downloads"
-OUTPUT_DIR = "./argo_outputs"
+OUTPUT_DIR = os.path.join(os.getcwd(), "converted_data")
+
 TIMEOUT = 60
 CHUNK = 1 << 16  # 64KB
 
