@@ -266,7 +266,7 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         try:
             df = convert_traj(local_nc)
             base = os.path.splitext(fname)[0]
-            df.to_csv(os.path.join(out_dir, f\"{base}_events.csv\") index=False)
+            df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
             df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
     except Exception as e:
             print(f"Failed convert traj {fname}: {e}")
