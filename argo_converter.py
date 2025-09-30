@@ -44,13 +44,18 @@ def fetch_text(url: str) -> str:
 def stream_download(url: str, out_path: str) -> str:
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
         return out_path
-    with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-        r.raise_for_status()
-        with open(out_path, "wb") as f:
-            for chunk in r.iter_content(CHUNK):
-                if chunk:
-                    f.write(chunk)
-    return out_path
+    try:
+        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+            r.raise_for_status()
+            with open(out_path, "wb") as f:
+                for chunk in r.iter_content(CHUNK):
+                    if chunk:
+                        f.write(chunk)
+        return out_path
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ File not found: {url}")
+        return None
+
 
 def to_datetime_juld(series: pd.Series) -> pd.Series:
     # Argo JULD: days since 1950-01-01
@@ -263,19 +268,30 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
-        stream_download(url, local_nc)
-        print(f"Converting traj: {local_nc}")
-        try:
+        local_nc = stream_download(url, local_nc)
+if not local_nc:
+    continue
+
+        local_nc = stream_download(url, local_nc)
+if not local_nc:
+    print(f"⏭️ Skipping traj file: {fname}")
+    continue
+    try:
             df = convert_traj(local_nc)
             base = os.path.splitext(fname)[0]
-            df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
+            df.to_csv(os.path.join(out_dir, f\"{base}_events.csv\"
+), index=False)
             df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
         except Exception as e:
             print(f"Failed convert traj {fname}: {e}")
 
     # Download and convert profile files (you can limit to latest N for demo)
     # For demo, keep last 3 profile files
-    prof_files_sorted = prof_files.sort_values(by="filename")
+    local_nc = stream_download(url, local_nc)
+if not local_nc:
+    print(f"⏭️ Skipping prof file: {fname}")
+    continue
+
     for _, row in prof_files_sorted.tail(3).iterrows():
         url = row["url"]
         fname = row["filename"]
@@ -307,4 +323,5 @@ def main(platform_ids: T.List[str]):
 
 if __name__ == "__main__":
     # Example: process one float (13857). Add more IDs as needed.
-    main(platform_ids=["13857"])
+    main(platform_ids=["4901210"])
+
