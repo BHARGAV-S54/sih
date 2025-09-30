@@ -11,7 +11,6 @@ import shutil
 import typing as T
 from datetime import datetime
 from urllib.parse import urljoin
-
 import requests
 import pandas as pd
 import numpy as np
@@ -21,8 +20,6 @@ import xarray as xr
 # Configuration
 # -----------------------
 BASE_URL = BASE_URL = "https://data-argo.ifremer.fr/"
-
-
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")   # global trajectory index
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")   # global profile index
 DOWNLOAD_DIR = r"./argo_downloads"
@@ -55,8 +52,6 @@ def stream_download(url: str, out_path: str) -> str:
     except requests.exceptions.HTTPError as e:
         print(f"❌ File not found: {url}")
         return None
-
-
 def to_datetime_juld(series: pd.Series) -> pd.Series:
     # Argo JULD: days since 1950-01-01
     return pd.to_datetime(series, unit="D", origin="1950-01-01", errors="coerce")
