@@ -268,24 +268,16 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
-      
-  
-  try:
+        try:
             df = convert_traj(local_nc)
             base = os.path.splitext(fname)[0]
             df.to_csv(os.path.join(out_dir, f\"{base}_events.csv\") index=False)
             df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
-
-
-
-        except Exception as e:
+    except Exception as e:
             print(f"Failed convert traj {fname}: {e}")
-
-    # Download and convert profile files (you can limit to latest N for demo)
+ # Download and convert profile files (you can limit to latest N for demo)
     # For demo, keep last 3 profile files
-    
-         
-    print(f"⏭️ Skipping prof file: {fname}")
+      print(f"⏭️ Skipping prof file: {fname}")
     continue
 
     for _, row in prof_files_sorted.tail(3).iterrows():
@@ -304,17 +296,13 @@ if not local_nc:
             base = os.path.splitext(fname)[0]
             df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"), index=False)
 df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"), index=False)
-
-
-        except Exception as e:
+  except Exception as e:
             print(f"Failed convert prof {fname}: {e}")
-
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
     idx_traj = load_index(INDEX_TRAJ)
     idx_prof = load_index(INDEX_PROF)
-
-    # Basic sanity
+  # Basic sanity
     if idx_traj.empty:
         print("Trajectory index empty; check URL or network.")
     if idx_prof.empty:
