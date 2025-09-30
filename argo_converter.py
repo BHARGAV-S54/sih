@@ -271,8 +271,7 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         local_nc = stream_download(url, local_nc)
 if not local_nc:
     continue
-
-        local_nc = stream_download(url, local_nc)
+ local_nc = stream_download(url, local_nc)
 if not local_nc:
     print(f"⏭️ Skipping traj file: {fname}")
     continue
