@@ -122,7 +122,9 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
         meas_df = ds[meas_vars].to_dataframe().reset_index() if meas_vars else pd.DataFrame()
         cycle_df = ds[cycle_vars].to_dataframe().reset_index() if cycle_vars else pd.DataFrame()
 
-        if not meas_df.empty and not cycle_df.empty and "CYCLE_NUMBER" in meas_df.columns:
+        if (not meas_df.empty and not cycle_df.empty 
+            and "CYCLE_NUMBER" in meas_df.columns 
+            and "CYCLE_NUMBER" in cycle_df.columns):
             df = meas_df.merge(cycle_df, on="CYCLE_NUMBER", how="left")
         elif not cycle_df.empty:
             df = cycle_df
@@ -161,7 +163,6 @@ def convert_traj(nc_path: str) -> pd.DataFrame:
         return df
     finally:
         ds.close()
-
 def convert_prof(nc_path: str) -> pd.DataFrame:
     ds = safe_open_dataset(nc_path)
     try:
@@ -177,8 +178,12 @@ def convert_prof(nc_path: str) -> pd.DataFrame:
         df = sanitize_columns(df)
 
         if "JULD" in df.columns:
-            df["JULD_dt"] = to_datetime_juld(df["JULD"])
-            df["JULD_date"] = pd.to_datetime(df["JULD_dt"]).dt.date
+            if np.issubdtype(df["JULD"].dtype, np.datetime64):
+                df["JULD_dt"] = df["JULD"]
+                df["JULD_date"] = pd.to_datetime(df["JULD"]).dt.date
+            else:
+                df["JULD_dt"] = to_datetime_juld(df["JULD"])
+                df["JULD_date"] = pd.to_datetime(df["JULD_dt"]).dt.date
 
         df["platform_number"] = str(ds.attrs.get("PLATFORM_NUMBER", "")) or None
 
@@ -190,7 +195,6 @@ def convert_prof(nc_path: str) -> pd.DataFrame:
         return df
     finally:
         ds.close()
-
 # -----------------------
 # Batch runner
 # -----------------------
