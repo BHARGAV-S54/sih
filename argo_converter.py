@@ -297,16 +297,14 @@ local_nc = stream_download(url, local_nc)
 if not local_nc:
     print(f"⏭️ Skipping prof file: {fname}")
 continue
- idx_prof = load_index(INDEX_PROF)
+idx_prof = load_index(INDEX_PROF)
   # Basic sanity
     if idx_traj.empty:
         print("Trajectory index empty; check URL or network.")
     if idx_prof.empty:
         print("Profile index empty; check URL or network.")
-
-    for pid in platform_ids:
+for pid in platform_ids:
         process_float(str(pid), idx_traj, idx_prof)
-
 if __name__ == "__main__":
     # Example: process one float (13857). Add more IDs as needed.
     main(platform_ids=["4901210"])
