@@ -278,8 +278,7 @@ local_nc = stream_download(url, local_nc)
 if not local_nc:
     print(f"⏭️ Skipping prof file: {fname}")
     continue
-
-     for _, row in prof_files_sorted.tail(3).iterrows():
+for _, row in prof_files_sorted.tail(3).iterrows():
         url = row["url"]
   fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
