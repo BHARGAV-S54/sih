@@ -13,7 +13,7 @@ import xarray as xr
 # -----------------------
 # Configuration
 # -----------------------
-BASE_URL = "BASE_URL = "https://data-argo.ifremer.fr/dac"
+BASE_URL = "https://data-argo.ifremer.fr/dac"
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")
 DOWNLOAD_DIR = "./argo_downloads"
@@ -207,8 +207,11 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         url, fname = row["url"], row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
-        stream_download(url, local_nc)
-        print(f"Converting traj:{url}")
+        try:
+            stream_download(url, local_nc)
+        except requests.HTTPError:
+            print(f"Skipping missing traj file: {url}")
+            continue
         print(f"Converting traj: {local_nc}")
         try:
             df = convert_traj(local_nc)
@@ -224,7 +227,11 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         url, fname = row["url"], row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading prof: {url}")
-        stream_download(url, local_nc)
+        try:
+            stream_download(url, local_nc)
+        except requests.HTTPError:
+            print(f"Skipping missing prof file: {url}")
+            continue
         print(f"Converting prof: {local_nc}")
         try:
             df = convert_prof(local_nc)
@@ -252,10 +259,9 @@ def main(platform_ids: T.List[str]):
         process_float(str(pid), idx_traj, idx_prof)
 
 
-if __name__ == "__main__":
-    # Example: process float 13858 (valid AOML DAC float)
-    main(platform_ids=["13858"])
-    
+# -----------------------
+# Flask wrapper for Render free tier
+# -----------------------
 from flask import Flask
 import threading
 
@@ -266,8 +272,11 @@ def home():
     return "Argo converter is running!"
 
 def run_converter():
-    # Run your ETL job once at startup
-    main(platform_ids=["13858"])
+    try:
+        # Run your ETL job once at startup
+        main(platform_ids=["13858"])
+    except Exception as e:
+        print(f"ETL failed: {e}")
 
 if __name__ == "__main__":
     # Start ETL in a background thread
