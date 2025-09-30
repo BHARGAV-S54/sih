@@ -33,15 +33,23 @@ def fetch_text(url: str) -> str:
     return r.text
 
 def stream_download(url: str, out_path: str) -> str:
+    print(f"🔍 Checking file: {url}")
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+        print(f"✅ Already downloaded: {out_path}")
         return out_path
-    with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-        r.raise_for_status()
-        with open(out_path, "wb") as f:
-            for chunk in r.iter_content(CHUNK):
-                if chunk:
-                    f.write(chunk)
-    return out_path
+    try:
+        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+            r.raise_for_status()
+            with open(out_path, "wb") as f:
+                for chunk in r.iter_content(CHUNK):
+                    if chunk:
+                        f.write(chunk)
+        print(f"✅ Downloaded: {out_path}")
+        return out_path
+    except requests.exceptions.HTTPError:
+        print(f"❌ File not found: {url}")
+        return None
+
 
 def to_datetime_juld(series: pd.Series) -> pd.Series:
     return pd.to_datetime(series, unit="D", origin="1950-01-01", errors="coerce")
