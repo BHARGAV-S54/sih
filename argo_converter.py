@@ -115,79 +115,81 @@ def filter_filetypes(df: pd.DataFrame, types: T.List[str]) -> pd.DataFrame:
 # -----------------------
 def convert_traj(nc_path: str) -> pd.DataFrame:
     ds = safe_open_dataset(nc_path)
+    try:
+        meas_vars = [v for v in ds.data_vars if "N_MEASUREMENT" in ds[v].dims]
+        cycle_vars = [v for v in ds.data_vars if "N_CYCLE" in ds[v].dims]
 
-    meas_vars = [v for v in ds.data_vars if "N_MEASUREMENT" in ds[v].dims]
-    cycle_vars = [v for v in ds.data_vars if "N_CYCLE" in ds[v].dims]
-    scalar_vars = [v for v in ds.data_vars if ds[v].dims == ()]
+        meas_df = ds[meas_vars].to_dataframe().reset_index() if meas_vars else pd.DataFrame()
+        cycle_df = ds[cycle_vars].to_dataframe().reset_index() if cycle_vars else pd.DataFrame()
 
-    meas_df = ds[meas_vars].to_dataframe().reset_index() if meas_vars else pd.DataFrame()
-    cycle_df = ds[cycle_vars].to_dataframe().reset_index() if cycle_vars else pd.DataFrame()
-    scalar_df = pd.DataFrame({v: [ds[v].values.item()] for v in scalar_vars}) if scalar_vars else pd.DataFrame()
+        if not meas_df.empty and not cycle_df.empty and "CYCLE_NUMBER" in meas_df.columns:
+            df = meas_df.merge(cycle_df, on="CYCLE_NUMBER", how="left")
+        elif not cycle_df.empty:
+            df = cycle_df
+        else:
+            df = meas_df
 
-    if not meas_df.empty and not cycle_df.empty and "CYCLE_NUMBER" in meas_df.columns:
-        df = meas_df.merge(cycle_df, on="CYCLE_NUMBER", how="left")
-    elif not cycle_df.empty:
-        df = cycle_df
-    else:
-        df = meas_df
+        df = sanitize_columns(df)
 
-    df = sanitize_columns(df)
+        juld_cols = [c for c in df.columns if c.startswith("JULD")]
+        for c in juld_cols:
+            try:
+                if np.issubdtype(df[c].dtype, np.datetime64):
+                    df[c + "_dt"] = df[c]
+                else:
+                    df[c + "_dt"] = to_datetime_juld(df[c])
+                df[c + "_date"] = pd.to_datetime(df[c + "_dt"]).dt.date
+            except Exception:
+                df[c + "_dt"] = pd.NaT
+                df[c + "_date"] = pd.NaT
 
-    juld_cols = [c for c in df.columns if c.startswith("JULD")]
-    for c in juld_cols:
-        try:
-            if np.issubdtype(df[c].dtype, np.datetime64):
-                df[c + "_dt"] = df[c]
-            else:
-                df[c + "_dt"] = to_datetime_juld(df[c])
-            df[c + "_date"] = pd.to_datetime(df[c + "_dt"]).dt.date
-        except Exception:
-            df[c + "_dt"] = pd.NaT
-            df[c + "_date"] = pd.NaT
+        if "CYCLE_NUMBER" in df.columns:
+            for col in ["LATITUDE", "LONGITUDE"]:
+                if col in df.columns:
+                    df[col] = df.groupby("CYCLE_NUMBER")[col].transform(lambda s: s.ffill().bfill())
 
-    if "CYCLE_NUMBER" in df.columns:
-        for col in ["LATITUDE", "LONGITUDE"]:
-            if col in df.columns:
-                df[col] = df.groupby("CYCLE_NUMBER")[col].transform(lambda s: s.ffill().bfill())
+        rep = None
+        for c in ["JULD_ASCENT_END", "JULD_TRANSMISSION_START", "JULD"]:
+            if c in juld_cols:
+                rep = c
+                break
+        if rep:
+            df["representative_time_dt"] = df[rep + "_dt"]
+            df["representative_time_date"] = df[rep + "_date"]
 
-    rep = None
-    for c in ["JULD_ASCENT_END", "JULD_TRANSMISSION_START", "JULD"]:
-        if c in juld_cols:
-            rep = c
-            break
-    if rep:
-        df["representative_time_dt"] = df[rep + "_dt"]
-        df["representative_time_date"] = df[rep + "_date"]
-
-    df["platform_number"] = str(ds.attrs.get("PLATFORM_NUMBER", "")) or None
-    return df
+        df["platform_number"] = str(ds.attrs.get("PLATFORM_NUMBER", "")) or None
+        return df
+    finally:
+        ds.close()
 
 def convert_prof(nc_path: str) -> pd.DataFrame:
     ds = safe_open_dataset(nc_path)
+    try:
+        vars_candidate = [v for v in ["PRES", "TEMP", "PSAL", "DOXY", "JULD",
+                                      "LATITUDE", "LONGITUDE", "CYCLE_NUMBER"]
+                          if v in ds.variables]
+        qc_vars = [qc for qc in ["PRES_QC", "TEMP_QC", "PSAL_QC", "DOXY_QC", "POSITION_QC"]
+                   if qc in ds.variables]
 
-    vars_candidate = [v for v in ["PRES", "TEMP", "PSAL", "DOXY", "JULD",
-                                  "LATITUDE", "LONGITUDE", "CYCLE_NUMBER"]
-                      if v in ds.variables]
-    qc_vars = [qc for qc in ["PRES_QC", "TEMP_QC", "PSAL_QC", "DOXY_QC", "POSITION_QC"]
-               if qc in ds.variables]
+        selected = vars_candidate + qc_vars
+        df = ds[selected].to_dataframe().reset_index() if selected else ds.to_dataframe().reset_index()
 
-    selected = vars_candidate + qc_vars
-    df = ds[selected].to_dataframe().reset_index() if selected else ds.to_dataframe().reset_index()
+        df = sanitize_columns(df)
 
-    df = sanitize_columns(df)
+        if "JULD" in df.columns:
+            df["JULD_dt"] = to_datetime_juld(df["JULD"])
+            df["JULD_date"] = pd.to_datetime(df["JULD_dt"]).dt.date
 
-    if "JULD" in df.columns:
-        df["JULD_dt"] = to_datetime_juld(df["JULD"])
-        df["JULD_date"] = pd.to_datetime(df["JULD_dt"]).dt.date
+        df["platform_number"] = str(ds.attrs.get("PLATFORM_NUMBER", "")) or None
 
-    df["platform_number"] = str(ds.attrs.get("PLATFORM_NUMBER", "")) or None
+        if "CYCLE_NUMBER" in df.columns:
+            for col in ["LATITUDE", "LONGITUDE"]:
+                if col in df.columns:
+                    df[col] = df.groupby("CYCLE_NUMBER")[col].transform(lambda s: s.ffill().bfill())
 
-    if "CYCLE_NUMBER" in df.columns:
-        for col in ["LATITUDE", "LONGITUDE"]:
-            if col in df.columns:
-                df[col] = df.groupby("CYCLE_NUMBER")[col].transform(lambda s: s.ffill().bfill())
-
-    return df
+        return df
+    finally:
+        ds.close()
 
 # -----------------------
 # Batch runner
@@ -206,7 +208,8 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
         stream_download(url, local_nc)
-        print(f"Converting traj: {local_nc}")
+        print(f"Converting traj:)
+                print(f"Converting traj: {local_nc}")
         try:
             df = convert_traj(local_nc)
             base = os.path.splitext(fname)[0]
