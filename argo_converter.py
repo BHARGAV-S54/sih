@@ -20,7 +20,7 @@ import xarray as xr
 # -----------------------
 # Configuration
 # -----------------------
-BASE_URL = "http://data-argo.ifremer.fr/aoml/13857/13857_traj.nc"
+BASE_URL = "data-argo.ifremer.fr"
 
 
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")   # global trajectory index
