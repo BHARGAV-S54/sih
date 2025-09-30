@@ -263,8 +263,10 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
-        try:
-            df = convert_traj(local_nc)
+            try:
+    df = convert_traj(local_nc)
+except Exception as e:
+    print("Error converting traj:", e)
             base = os.path.splitext(fname)[0]
             df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
             df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
