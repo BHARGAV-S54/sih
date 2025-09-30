@@ -284,12 +284,12 @@ print(f"Downloading prof: {url}")
 stream_download(url, local_nc)
 print(f"Converting prof: {local_nc}")
 try:
-df = convert_prof(local_nc)
-base = os.path.splitext(fname)[0]
-df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"),index=False)
-df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"),index=False)
+   df = convert_prof(local_nc)
+   base = os.path.splitext(fname)[0]
+   df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"),index=False)
+   df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"),index=False)
 except Exception as e:
-     print(f"Failed convert prof {fname}: {e}")
+   print(f"Failed convert prof {fname}: {e}")
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
     idx_traj = load_index(INDEX_TRAJ)
