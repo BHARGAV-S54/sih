@@ -255,3 +255,22 @@ def main(platform_ids: T.List[str]):
 if __name__ == "__main__":
     # Example: process float 13858 (valid AOML DAC float)
     main(platform_ids=["13858"])
+    
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Argo converter is running!"
+
+def run_converter():
+    # Run your ETL job once at startup
+    main(platform_ids=["13858"])
+
+if __name__ == "__main__":
+    # Start ETL in a background thread
+    threading.Thread(target=run_converter).start()
+    # Start a dummy web server so Render sees a port open
+    app.run(host="0.0.0.0", port=10000)
