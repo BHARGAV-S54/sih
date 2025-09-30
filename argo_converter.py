@@ -263,7 +263,7 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
-            try:
+    try:
     df = convert_traj(local_nc)
 except Exception as e:
     print("Error converting traj:", e)
