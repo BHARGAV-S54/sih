@@ -295,7 +295,7 @@ idx_traj = load_index(INDEX_TRAJ)
 local_nc = stream_download(url, local_nc)
 if not local_nc:
     print(f"⏭️ Skipping prof file: {fname}")
-continue
+    continue
 idx_prof = load_index(INDEX_PROF)
   # Basic sanity
 if idx_traj.empty:
