@@ -291,11 +291,11 @@ try:
 except Exception as e:
    print(f"Failed convert prof {fname}: {e}")
 def main(platform_ids: T.List[str]):
-    print("Loading indexes...")
-    idx_traj = load_index(INDEX_TRAJ)
-   <br>local_nc = stream_download(url, local_nc)<br>
-if not local_nc:<br>
-    print(f"⏭️ Skipping prof file: {fname}")<br>
+  print("Loading indexes...")
+ idx_traj = load_index(INDEX_TRAJ)
+ <br>local_nc = stream_download(url, local_nc)
+if not local_nc:
+    print(f"⏭️ Skipping prof file: {fname}")
 continue
  idx_prof = load_index(INDEX_PROF)
   # Basic sanity
