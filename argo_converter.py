@@ -283,21 +283,17 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
  try
            df = convert_prof(local_nc)
           base = os.path.splitext(fname)[0]
-          df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"), index=False)
-          df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"), index=False)
+          df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"),index=False)
+          df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"),index=False)
   except Exception as e:
             print(f"Failed convert prof {fname}: {e}")
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
     idx_traj = load_index(INDEX_TRAJ)
-   local_nc = stream_download(url, local_nc)
-if not local_nc:
-    print(f"⏭️ Skipping prof file: {fname}")
-    continue
-
-if not local_nc:
-    print(f"⏭️ Skipping prof file: {fname}")
-    continue
+   <br>local_nc = stream_download(url, local_nc)<br>
+if not local_nc:<br>
+    print(f"⏭️ Skipping prof file: {fname}")<br>
+continue
  idx_prof = load_index(INDEX_PROF)
   # Basic sanity
     if idx_traj.empty:
