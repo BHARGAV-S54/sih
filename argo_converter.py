@@ -265,10 +265,10 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         print(f"Downloading traj: {url}")
 for fname in file_list:      
 try:
-   base = os.path.splitext(fname)[0]
-   df = convert_traj(local_nc)
-   df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
-   df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
+    base = os.path.splitext(fname)[0]
+    df = convert_traj(local_nc)
+    df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
+    df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
 except Exception as e:
     print(f"Failed convert traj {fname}: {e}")
  # Download and convert profile files (you can limit to latest N for demo)
@@ -276,20 +276,24 @@ except Exception as e:
 local_nc = stream_download(url, local_nc)
 if not local_nc:
     print(f"⏭️ Skipping prof file: {fname}")
-for _, row in prof_files_sorted.tail(3).iterrows():
-        url = row["url"]
-fname = row["filename"]
-local_nc = os.path.join(DOWNLOAD_DIR, fname)
-print(f"Downloading prof: {url}")
-stream_download(url, local_nc)
-print(f"Converting prof: {local_nc}")
-try:
-   df = convert_prof(local_nc)
-   base = os.path.splitext(fname)[0]
-   df.to_csv(os.path.join(out_dir, f"{base}_profiles.csv"),index=False)
-   df.to_parquet(os.path.join(out_dir, f"{base}_profiles.parquet"),index=False)
-except Exception as e:
-   print(f"Failed convert prof {fname}: {e}")
+for _, row in traj_files.iterrows():
+    url = row["url"]
+    fname = row["filename"]
+    local_nc = os.path.join(DOWNLOAD_DIR, fname)
+    print(f"Downloading traj: {url}")
+    
+    local_nc = stream_download(url, local_nc)
+    if not local_nc:
+        print(f"⏭️ Skipping traj file: {fname}")
+        continue
+
+    try:
+        base = os.path.splitext(fname)[0]
+        df = convert_traj(local_nc)
+        df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
+        df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
+    except Exception as e:
+        print(f"Failed convert traj {fname}: {e}")
 def main(platform_ids: T.List[str]):
   print("Loading indexes...")
 idx_traj = load_index(INDEX_TRAJ)
