@@ -269,8 +269,6 @@ try:
     df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
     df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
 except Exception as e:
-    print("Error converting traj:", e)
-except Exception as e:
             print(f"Failed convert traj {fname}: {e}")
  # Download and convert profile files (you can limit to latest N for demo)
     # For demo, keep last 3 profile files
@@ -280,7 +278,7 @@ if not local_nc:
     continue
 for _, row in prof_files_sorted.tail(3).iterrows():
         url = row["url"]
-  fname = row["filename"]
+fname = row["filename"]
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading prof: {url}")
         stream_download(url, local_nc)
