@@ -208,8 +208,8 @@ def process_float(platform_id: str, index_traj: pd.DataFrame, index_prof: pd.Dat
         local_nc = os.path.join(DOWNLOAD_DIR, fname)
         print(f"Downloading traj: {url}")
         stream_download(url, local_nc)
-        print(f"Converting traj:)
-                print(f"Converting traj: {local_nc}")
+        print(f"Converting traj:{url}")
+        print(f"Converting traj: {local_nc}")
         try:
             df = convert_traj(local_nc)
             base = os.path.splitext(fname)[0]
