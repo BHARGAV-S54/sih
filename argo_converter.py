@@ -12,7 +12,7 @@ from datetime import datetime
 # -----------------------
 # Configuration
 # -----------------------
-BASE_URL = "https://data-argo.ifremer.fr/aoml/13857/13857_Rtraj.nc"
+BASE_URL = "https://data-argo.ifremer.fr/dac"
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")
 DOWNLOAD_DIR = "./argo_downloads"
