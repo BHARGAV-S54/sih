@@ -203,4 +203,8 @@ def main(platform_ids: T.List[str]):
 
 if __name__ == "__main__":
       main(platform_ids=["13857"])
+    if r.status_code == 404:
+    print(f"⚠️ File not found: {url} — skipping.")
+    continue
+
 
