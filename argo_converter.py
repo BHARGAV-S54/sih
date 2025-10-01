@@ -12,7 +12,7 @@ from datetime import datetime
 # -----------------------
 # Configuration
 # -----------------------
-BASE_URL = "https://data-argo.ifremer.fr/"
+BASE_URL = "https://data-argo.ifremer.fr/aoml/13857/13857_Rtraj.nc"
 INDEX_TRAJ = urljoin(BASE_URL, "ar_index_global_traj.txt")
 INDEX_PROF = urljoin(BASE_URL, "ar_index_global_prof.txt")
 DOWNLOAD_DIR = "./argo_downloads"
@@ -203,8 +203,6 @@ def main(platform_ids: T.List[str]):
 
 if __name__ == "__main__":
       main(platform_ids=["13857"])
-    if r.status_code == 404:
-    print(f"⚠️ File not found: {url} — skipping.")
-    continue
+    
 
 
