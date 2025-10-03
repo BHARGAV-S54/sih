@@ -207,4 +207,12 @@ def process_float(platform_id: str, index_traj: pd.DataFrame):
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
     idx_traj = load_index(INDEX_TRAJ)
+    - name: Upload converted files
+  uses: actions/upload-artifact@v3
+  with:
+    name: converted-output
+    path: |
+      converted_data/**/*.csv
+      converted_data/**/*.parquet
+
     
