@@ -207,4 +207,4 @@ def process_float(platform_id: str, index_traj: pd.DataFrame):
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
     idx_traj = load_index(INDEX_TRAJ)
-    if idx_traj.empty:
+    
