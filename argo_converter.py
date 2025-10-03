@@ -8,7 +8,7 @@ import xarray as xr
 import typing as T
 from urllib.parse import urljoin
 from datetime import datetime
-
+# -----------------------
 # -----------------------
 # Configuration
 # -----------------------
@@ -53,6 +53,19 @@ def to_datetime_juld(series: pd.Series) -> pd.Series:
 def safe_open_dataset(nc_path: str) -> xr.Dataset:
     return xr.open_dataset(nc_path, decode_timedelta=True)
 
+def convert_nc_to_csv(nc_path: str, output_csv_path: str):
+    try:
+        ds = safe_open_dataset(nc_path)
+        df = ds.to_dataframe().reset_index()
+
+        # Optional: filter columns if needed
+        # df = df[['latitude', 'longitude', 'pres', 'temp', 'sal']]
+
+        df.to_csv(output_csv_path, index=False)
+        print(f"✅ Converted and saved: {output_csv_path}")
+    except Exception as e:
+        print(f"❌ Conversion failed for {nc_path}: {e}")
+
 def sanitize_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
         if df[col].dtype == object:
@@ -64,6 +77,10 @@ def sanitize_columns(df: pd.DataFrame) -> pd.DataFrame:
 # -----------------------
 def parse_index_lines(text: str) -> pd.DataFrame:
     lines = [ln for ln in text.splitlines() if ln and not ln.startswith("#")]
+   nc_file = os.path.join(DOWNLOAD_DIR, "13857_Rtraj.nc")
+csv_file = os.path.join(OUTPUT_DIR, "13857.csv")
+convert_nc_to_csv(nc_file, csv_file)
+
     if not lines:
         return pd.DataFrame()
 
