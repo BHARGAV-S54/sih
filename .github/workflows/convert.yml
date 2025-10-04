@@ -1,7 +1,7 @@
 name: Run Argo Converter
 
 on:
-  workflow_dispatch:   # manual trigger
+  workflow_dispatch:   # manual trigger from Actions tab
   schedule:
     - cron: "0 0 * * *"   # optional: run daily at midnight UTC
 
@@ -28,14 +28,14 @@ jobs:
         run: |
           python argo_converter.py
 
-      # Upload as artifact (downloadable from Actions run page)
+      # ✅ Upload as artifact (downloadable from Actions run page)
       - name: Upload converted files
         uses: actions/upload-artifact@v4
         with:
           name: converted-data
           path: argo_outputs/
 
-      # Commit results into a separate branch
+      # ✅ Commit results into a separate branch
       - name: Commit and push results to data-outputs branch
         run: |
           git config --global user.name "github-actions[bot]"
