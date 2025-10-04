@@ -28,18 +28,20 @@ jobs:
         run: |
           python argo_converter.py
 
-      # Option 1: Upload as artifact (downloadable from Actions run page)
+      # ✅ Upload as artifact (downloadable from Actions run page)
       - name: Upload converted files
         uses: actions/upload-artifact@v4
         with:
           name: converted-data
           path: converted_data/
 
-      # Option 2: Commit results back into repo
-      - name: Commit and push results
+      # ✅ Commit results into a separate branch (to avoid bloating main)
+      - name: Commit and push results to data-outputs branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          git checkout -B data-outputs
           git add converted_data/ || true
           git commit -m "Add converted Argo data [skip ci]" || echo "No changes to commit"
-          git push
+          git push origin data-outputs --force
