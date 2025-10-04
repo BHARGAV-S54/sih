@@ -190,7 +190,15 @@ def process_float(platform_id: str, index_traj: pd.DataFrame):
             df.to_csv(os.path.join(out_dir, f"{base}_events.csv"), index=False)
             df.to_parquet(os.path.join(out_dir, f"{base}_events.parquet"), index=False)
         except Exception as e:
-            print(f"Failed convert traj {fname}: {e}")
+     # Save CSV output
+    if platform:
+        out_file = os.path.join(OUTPUT_DIR, f"{platform}_traj.csv")
+    else:
+        out_file = os.path.join(OUTPUT_DIR, "unknown_traj.csv")
+
+    df.to_csv(out_file, index=False)
+    print(f"[OK] Converted {nc_path} → {out_file}")
+           print(f"Failed convert traj {fname}: {e}")
 
 def main(platform_ids: T.List[str]):
     print("Loading indexes...")
