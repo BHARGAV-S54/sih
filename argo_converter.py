@@ -1,6 +1,5 @@
 import os
 import re
-import dask
 import csv
 import typing as T
 from urllib.parse import urljoin
