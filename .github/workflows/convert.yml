@@ -1,28 +1,45 @@
 name: Run Argo Converter
 
 on:
-  workflow_dispatch:   # allows manual trigger
+  workflow_dispatch:   # allows manual trigger from Actions tab
   schedule:
-    - cron: "0 0 * * *"   # runs daily at midnight UTC
+    - cron: "0 0 * * *"   # optional: run daily at midnight UTC
 
 jobs:
   convert:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          # or directly: pip install xarray pandas numpy requests pyarrow netCDF4
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || \
+          pip install xarray pandas numpy requests pyarrow netCDF4 fastparquet
 
       - name: Run converter
         run: |
           python argo_converter.py
+
+      # Option 1: Upload as artifact (downloadable from Actions run page)
+      - name: Upload converted files
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-data
+          path: converted_data/
+
+      # Option 2: Commit results back into repo
+      - name: Commit and push results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add converted_data/ || true
+          git commit -m "Add converted Argo data [skip ci]" || echo "No changes to commit"
+          git push
