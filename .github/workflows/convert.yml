@@ -1,7 +1,7 @@
 name: Run Argo Converter
 
 on:
-  workflow_dispatch:   # allows manual trigger from Actions tab
+  workflow_dispatch:   # manual trigger
   schedule:
     - cron: "0 0 * * *"   # optional: run daily at midnight UTC
 
@@ -28,20 +28,20 @@ jobs:
         run: |
           python argo_converter.py
 
-      # ✅ Upload as artifact (downloadable from Actions run page)
+      # Upload as artifact (downloadable from Actions run page)
       - name: Upload converted files
         uses: actions/upload-artifact@v4
         with:
           name: converted-data
-          path: converted_data/
+          path: argo_outputs/
 
-      # ✅ Commit results into a separate branch (to avoid bloating main)
+      # Commit results into a separate branch
       - name: Commit and push results to data-outputs branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin
           git checkout -B data-outputs
-          git add converted_data/ || true
+          git add argo_outputs/ || true
           git commit -m "Add converted Argo data [skip ci]" || echo "No changes to commit"
           git push origin data-outputs --force
