@@ -2,8 +2,8 @@ name: Run Argo Converter
 
 on:
   workflow_dispatch:   # manual trigger from Actions tab
-  schedule:
-    - cron: "0 0 * * *"   # optional: run daily at midnight UTC
+ # schedule:
+  #  - cron: "0 0 * * *"   # optional: run daily at midnight UTC
 
 jobs:
   convert:
